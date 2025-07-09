@@ -1,6 +1,6 @@
 ---
 title: "Home"
-seo_title: "OpenHW Group"
+seo_title: "OpenHW Foundation"
 headline: "OpenHW Foundation"
 custom_jumbotron: |
   <p class="featured-jumbotron-subtitle">
