@@ -1,8 +1,8 @@
-# Notices for openhwgroup.org
+# Notices for openhwfoundation.org
 
 This content is produced and maintained by the Eclipse Foundation.
 
-* Project home: https://github.com/openhwgroup/openhwgroup.org/
+* Project home: https://github.com/openhwgroup/openhwfoundation.org/
 
 ## Trademarks
 
@@ -27,7 +27,7 @@ SPDX-License-Identifier: EPL-2.0
 
 The project maintains the following source code repositories:
 
-* https://github.com/openhwgroup/openhwgroup.org/
+* https://github.com/openhwgroup/openhwfoundation.org/
 
 ## Third-party Content
 

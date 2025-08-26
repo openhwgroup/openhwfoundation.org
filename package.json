@@ -1,12 +1,12 @@
 {
   "name": "eclipsefdn-hugo-openhwgroup",
-  "description": "Source code for openhwgroup.org",
+  "description": "Source code for openhwfoundation.org",
   "main": "webpack.min.js",
   "author": "Christopher Guindon",
   "license": "EPL-2.0",
   "version": "0.0.1",
   "bugs": {
-    "url": "https://github.com/openhwgroup/openhwgroup.org/issues"
+    "url": "https://github.com/openhwgroup/openhwfoundation.org/issues"
   },
   "repository": {
     "type": "git",
