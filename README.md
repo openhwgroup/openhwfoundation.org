@@ -10,9 +10,8 @@ OpenHW Group is a not-for-profit, global organization driven by its members and 
 
 | Software | Version |
 |---------|---------|
-| node.js | 18.13.0 |
-| npm | 8.19 |
-| Hugo | 0.110 |
+| node.js | 22.14.0 |
+| Hugo | 0.144.2 |
 | Git | > 2.31 |
 
 See our [Managing Required Software](https://gitlab.eclipse.org/eclipsefdn/it/webdev/hugo-solstice-theme/-/wikis/Managing-Required-Software) wiki page for more information on this topic.
