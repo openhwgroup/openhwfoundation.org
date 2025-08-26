@@ -1,6 +1,6 @@
-# openhwgroup.org
+# openhwfoundation.org
 
-The [openhwgroup.org](https://openhwgroup.org) website is generated with [Hugo](https://gohugo.io/documentation/).
+The [openhwfoundation.org](https://openhwfoundation.org) website is generated with [Hugo](https://gohugo.io/documentation/).
 
 OpenHW Group is a not-for-profit, global organization driven by its members and individual contributors where hardware and software designers collaborate in the development of open-source cores, related IP, tools and software. OpenHW provides an infrastructure for hosting high quality open-source HW developments in line with industry best practices.
 
@@ -25,7 +25,7 @@ yarn && hugo server --disableFastRender --buildFuture
 
 ## Contributing
 
-1. [Fork](https://help.github.com/articles/fork-a-repo/) the [openhwgroup/openhwgroup.org](https://github.com/openhwgroup/openhwgroup.org) repository
+1. [Fork](https://help.github.com/articles/fork-a-repo/) the [openhwgroup/openhwfoundation.org](https://github.com/openhwgroup/openhwfoundation.org) repository
 2. Clone repository: `git clone https://github.com/[your_github_username]/openhwgroup.org.git`
 3. Create your feature branch: `git checkout -b my-new-feature`
 4. Commit your changes: `git commit -m 'Add some feature' -s`
@@ -52,7 +52,7 @@ Hugo theme of the Eclipse Foundation look and feel.
 
 ## Bugs and feature requests
 
-Have a bug or a feature request? Please search for existing and closed issues. If your problem or idea is not addressed yet, [please open a new issue](https://github.com/openhwgroup/openhwgroup.org/issues/new).
+Have a bug or a feature request? Please search for existing and closed issues. If your problem or idea is not addressed yet, [please open a new issue](https://github.com/openhwgroup/openhwfoundation.org/issues/new).
 
 ## Author
 
@@ -68,4 +68,4 @@ Have a bug or a feature request? Please search for existing and closed issues. I
 
 ## Copyright and license
 
-Copyright of the [OpenHW Group](https://www.openhwgroup.org) and the [openhwgroup.org authors](https://github.com/openhwgroup/openhwgroup.org/graphs/contributors). Code released under the [Eclipse Public License Version 2.0 (EPL-2.0)](https://github.com/openhwgroup/openhwgroup.org/blob/src/LICENSE).
+Copyright of the [OpenHW Group](https://www.openhwgroup.org) and the [openhwfoundation.org authors](https://github.com/openhwgroup/openhwfoundation.org/graphs/contributors). Code released under the [Eclipse Public License Version 2.0 (EPL-2.0)](https://github.com/openhwgroup/openhwfoundation.org/blob/src/LICENSE).

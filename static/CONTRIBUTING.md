@@ -1,18 +1,18 @@
-# Contributing to openhwgroup.org
+# Contributing to openhwfoundation.org
 
 Thanks for your interest in this project.
 
 ## Project description
 
-openhwgroup.org is a project to regroup assets for the Eclipse Foundation look and feel. 
+openhwfoundation.org is a project to regroup assets for the Eclipse Foundation look and feel. 
 
-* https://github.com/openhwgroup/openhwgroup.org
+* https://github.com/openhwgroup/openhwfoundation.org
 
 ## Developer resources
 
 The project maintains the following source code repositories
 
-* https://github.com/openhwgroup/openhwgroup.org
+* https://github.com/openhwgroup/openhwfoundation.org
 
 ## Eclipse Contributor Agreement
 
