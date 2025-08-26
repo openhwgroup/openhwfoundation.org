@@ -9,11 +9,10 @@ OpenHW Group is a not-for-profit, global organization driven by its members and 
 ### Required Software
 
 | Software | Version |
-|---------|---------|
-| node.js | 18.13.0 |
-| npm | 8.19 |
-| Hugo | 0.110 |
-| Git | > 2.31 |
+| -------- | ------- |
+| node.js  | 22.14.0 |
+| Hugo     | 0.144.2 |
+| Git      | > 2.31  |
 
 See our [Managing Required Software](https://gitlab.eclipse.org/eclipsefdn/it/webdev/hugo-solstice-theme/-/wikis/Managing-Required-Software) wiki page for more information on this topic.
 
@@ -63,8 +62,8 @@ Have a bug or a feature request? Please search for existing and closed issues. I
 
 ## Trademarks
 
-* Eclipse® is a Trademark of the Eclipse Foundation, Inc.
-* Eclipse Foundation is a Trademark of the Eclipse Foundation, Inc.
+- Eclipse® is a Trademark of the Eclipse Foundation, Inc.
+- Eclipse Foundation is a Trademark of the Eclipse Foundation, Inc.
 
 ## Copyright and license
 

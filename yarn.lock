@@ -932,7 +932,7 @@
   resolved "https://registry.yarnpkg.com/@babel/regjsgen/-/regjsgen-0.8.0.tgz#f0ba69b075e1f05fb2825b7fad991e7adbb18310"
   integrity sha512-x/rqGMdzj+fWZvCOYForTghzbtqPDZ5gPwaoNGHdgDfF2QA/XZbCBp4Moo5scrkAMPhB7z26XM/AaHuIJdgauA==
 
-"@babel/runtime@^7.15.4", "@babel/runtime@^7.21.0", "@babel/runtime@^7.8.4":
+"@babel/runtime@^7.15.4", "@babel/runtime@^7.8.4":
   version "7.25.6"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.25.6.tgz#9afc3289f7184d8d7f98b099884c26317b9264d2"
   integrity sha512-VBj9MYyDb9tuLq7yzqjgzt6Q+IBQLrGZfdjOekyEirZPHxXWoTSGUTMrpsfi58Up73d13NfYLv8HT9vmznjzhQ==
@@ -1961,9 +1961,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001646, caniuse-lite@^1.0.30001663:
-  version "1.0.30001664"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001664.tgz#d588d75c9682d3301956b05a3749652a80677df4"
-  integrity sha512-AmE7k4dXiNKQipgn7a2xg558IRqPN3jMQY/rOsbxDhrd0tyChwbITBfiwtnqz8bi2M5mIWbxAYBvk7W7QBUS2g==
+  version "1.0.30001737"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001737.tgz"
+  integrity sha512-BiloLiXtQNrY5UyF0+1nSJLXUENuhka2pzy2Fx5pGxqavdrxSCW4U6Pn/PoG3Efspi2frRbHpBV2XsrPE6EDlw==
 
 chalk@^2.4.2:
   version "2.4.2"
@@ -2451,12 +2451,10 @@ data-view-byte-offset@^1.0.0:
     es-errors "^1.3.0"
     is-data-view "^1.0.1"
 
-date-fns@^2.30.0:
-  version "2.30.0"
-  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.30.0.tgz#f367e644839ff57894ec6ac480de40cae4b0f4d0"
-  integrity sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==
-  dependencies:
-    "@babel/runtime" "^7.21.0"
+date-fns@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-4.1.0.tgz#64b3d83fff5aa80438f5b1a633c2e83b8a1c2d14"
+  integrity sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==
 
 debug@2.6.9:
   version "2.6.9"
@@ -2649,19 +2647,20 @@ dotignore@~0.1.2:
   dependencies:
     minimatch "^3.0.4"
 
-eclipsefdn-hugo-solstice-theme@0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/eclipsefdn-hugo-solstice-theme/-/eclipsefdn-hugo-solstice-theme-0.1.4.tgz#4a42b6736c7d26e3fa96358f557238506c32f79e"
-  integrity sha512-tclgVU+qOiq4z1/mc+pn83cXWX9eHwFmAK+JbyNbVKKOeRjDC/h47eqxgyg90GR/NREUmtYx2Yi8j0B+BD+L8A==
+eclipsefdn-hugo-solstice-theme@0.1.18:
+  version "0.1.18"
+  resolved "https://registry.yarnpkg.com/eclipsefdn-hugo-solstice-theme/-/eclipsefdn-hugo-solstice-theme-0.1.18.tgz#9709b4af93dfbfb250a6f4257ec36a4f8ece7760"
+  integrity sha512-0+yJ1edwJForf7gHWqvHSGQPRJU6s+uYonUKTWUffqiM0PW1wb/TRh/LMMUFdJOo1F2GlszkVN68zHl6XKG/OQ==
   dependencies:
     axios "^1.7.7"
-    eclipsefdn-solstice-assets "0.1.5"
+    eclipsefdn-solstice-assets "0.1.20"
     json2yaml "^1.1.0"
     toml "^3.0.0"
 
-eclipsefdn-solstice-assets@0.1.5, "eclipsefdn-solstice-assets@https://gitlab.eclipse.org/eclipsefdn/it/webdev/solstice-assets.git#e3c438cbec4c52e38ac0573320774b6496b9bfc3":
-  version "0.1.5"
-  resolved "https://gitlab.eclipse.org/eclipsefdn/it/webdev/solstice-assets.git#e3c438cbec4c52e38ac0573320774b6496b9bfc3"
+eclipsefdn-solstice-assets@0.1.20:
+  version "0.1.20"
+  resolved "https://registry.yarnpkg.com/eclipsefdn-solstice-assets/-/eclipsefdn-solstice-assets-0.1.20.tgz#3b4e5c31196d5e7f8eab42347bfc839cb4cf1d42"
+  integrity sha512-wKCWIuxGWKqyHRmowVd9mAJlARUMGnlegTVBM2YJU2Lu9hbZdLUZTX5Ts0eexr0gdLfpZuAEw0ku6vt/VoKRew==
   dependencies:
     "@babel/core" "^7.23.2"
     "@babel/plugin-proposal-class-properties" "^7.18.6"
@@ -2680,11 +2679,12 @@ eclipsefdn-solstice-assets@0.1.5, "eclipsefdn-solstice-assets@https://gitlab.ecl
     browserslist "^4.22.1"
     cookieconsent "^3.1.1"
     core-js "3.36.0"
-    date-fns "^2.30.0"
+    date-fns "^4.1.0"
     element-closest-polyfill "^1.0.6"
     ellipsize "^0.2.0"
     feather-icons "^4.29.1"
     file-loader "^6.2.0"
+    gsap "^3.12.7"
     hogan.js "^3.0.2"
     html-webpack-plugin "^5.5.3"
     isomorphic-fetch "^3.0.0"
@@ -3298,6 +3298,11 @@ growly@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
   integrity sha512-+xGQY0YyAWCnqy7Cd++hc2JqMYzlm0dG30Jd0beaA64sROr8C4nt8Yc9V5Ro3avlSUDTN0ulqP/VBKi1/lLygw==
+
+gsap@^3.12.7:
+  version "3.13.0"
+  resolved "https://registry.yarnpkg.com/gsap/-/gsap-3.13.0.tgz#597d4e019a2bb487785387d91296adebf92db9dd"
+  integrity sha512-QL7MJ2WMjm1PHWsoFrAQH/J8wUeqZvMtHO58qdekHpCfhvhSL4gSiz6vJf5EeMP0LOn3ZCprL2ki/gjED8ghVw==
 
 handle-thing@^2.0.0:
   version "2.0.1"

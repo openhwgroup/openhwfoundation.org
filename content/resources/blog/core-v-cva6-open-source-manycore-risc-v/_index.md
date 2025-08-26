@@ -43,3 +43,5 @@ Learn more about our work by visiting my [Jonathan Balkind profile at UC Santa B
 <small class="small">
     * Intel, the Intel logo, and other Intel marks are trademarks of Intel Corporation or its subsidiaries. Other names and brands may be claimed as the property of others.
 </small>
+
+{{< /grid/div >}}
