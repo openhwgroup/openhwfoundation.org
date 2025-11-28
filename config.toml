@@ -131,3 +131,9 @@ themesDir = "node_modules/"
   url = "/resources/openhwtv"
   parent = "resources"
   weight = 3
+
+[[menu.main]]
+  name = "Calendar"
+  url = "/resources/calendar/"
+  weight = 4
+  parent = "resources"
