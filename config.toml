@@ -127,6 +127,12 @@ themesDir = "node_modules/"
   weight = 2
 
 [[menu.main]]
+  name = "Meeting Minutes"
+  url = "/resources/meeting-minutes/"
+  parent = "resources"
+  weight = 3
+
+[[menu.main]]
   name = "OpenHW TV"
   url = "/resources/openhwtv"
   parent = "resources"
