@@ -1,5 +1,5 @@
 yearly_sections_enabled: true
-dir: "/meeting-minutes/documents/"
+dir: "/resources/meeting-minutes/documents/"
 order:
   - "steering_committee"
 items:
