@@ -70,6 +70,31 @@ function hugoProxyPlugin() {
   return {
     name: 'hugo-html-proxy',
     configureServer(server) {
+      // Connect to Hugo's livereload WebSocket and relay reload events
+      // through Vite's HMR channel. This way the browser only reloads
+      // once Hugo has actually finished rebuilding.
+      const connectToHugoLR = () => {
+        const ws = new WebSocket(`ws://localhost:1313/livereload`);
+        ws.addEventListener('open', () => {
+          // Hugo's livereload protocol requires a hello handshake
+          ws.send(JSON.stringify({
+            command: 'hello',
+            protocols: ['http://livereload.com/protocols/official-7'],
+          }));
+        });
+        ws.addEventListener('message', (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.command === 'reload') {
+              server.ws.send({ type: 'full-reload' });
+            }
+          } catch { /* ignore non-JSON frames */ }
+        });
+        ws.addEventListener('close', () => setTimeout(connectToHugoLR, 1000));
+        ws.addEventListener('error', () => ws.close());
+      };
+      connectToHugoLR();
+
       server.middlewares.use(async (req, res, next) => {
         if (VITE_OWNED.some((p) => req.url.startsWith(p))) return next();
 
