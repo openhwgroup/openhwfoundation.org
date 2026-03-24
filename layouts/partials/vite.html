@@ -1,8 +1,17 @@
 {{ $entry := . }}
 
 {{ if hugo.IsServer }}
-  {{/* In dev mode, Vite dev server handles both JS and CSS modules */}}
-  <script type="module" src="/{{ $entry }}"></script>
+  {{ if or (strings.HasSuffix $entry ".less") (strings.HasSuffix $entry ".css") }}
+    {{/* Hide page until styles are injected to prevent FOUC (flash of unstyled content).
+         The import resolves after Vite injects the <style> tag, then the guard is removed. */}}
+    <style id="vite-fouc-guard">html { visibility: hidden; }</style>
+    <script type="module">
+      import '/{{ $entry }}';
+      document.getElementById('vite-fouc-guard').remove();
+    </script>
+  {{ else }}
+    <script type="module" src="/{{ $entry }}"></script>
+  {{ end }}
 {{ else }}
   {{ $manifestPath := "static/dist/.vite/manifest.json" }}
 

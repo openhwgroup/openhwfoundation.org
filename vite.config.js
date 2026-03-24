@@ -1,8 +1,6 @@
 import { defineConfig } from 'vite';
-import { createRequire } from 'module';
 import path from 'path';
 
-const require = createRequire(import.meta.url);
 const resolve = (...segments) => path.resolve(import.meta.dirname, ...segments);
 
 // ---------------------------------------------------------------------------
