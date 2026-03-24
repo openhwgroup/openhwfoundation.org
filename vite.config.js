@@ -1,8 +1,8 @@
-import { defineConfig } from 'vite';
-import { execFileSync } from 'node:child_process';
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
+import { defineConfig } from "vite";
+import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 
 const projectRoot = import.meta.dirname;
 const resolve = (...segments) => path.resolve(projectRoot, ...segments);
@@ -36,11 +36,11 @@ function walkDir(dir, callback) {
  */
 function mustachePlugin() {
   return {
-    name: 'vite-plugin-mustache',
+    name: "vite-plugin-mustache",
     transform(src, id) {
-      if (!id.endsWith('.mustache')) return null;
+      if (!id.endsWith(".mustache")) return null;
 
-      if (id.endsWith('.partial.mustache')) {
+      if (id.endsWith(".partial.mustache")) {
         return { code: `export default ${JSON.stringify(src)};`, map: null };
       }
 
@@ -49,7 +49,7 @@ function mustachePlugin() {
           `import Hogan from 'hogan.js';`,
           `var t = Hogan.compile(${JSON.stringify(src)});`,
           `export default function() { return t.render.apply(t, arguments); };`,
-        ].join('\n'),
+        ].join("\n"),
         map: null,
       };
     },
@@ -62,36 +62,38 @@ function mustachePlugin() {
  * proxied as a fallback when Vite doesn't serve them itself.
  */
 function hugoProxyPlugin() {
-  const HUGO = 'http://localhost:1313';
-  const VITE_OWNED = [
-    '/@', '/src/', '/node_modules/', '/js/', '/less/',
-  ];
+  const HUGO = "http://localhost:1313";
+  const VITE_OWNED = ["/@", "/src/", "/node_modules/", "/js/", "/less/"];
 
   return {
-    name: 'hugo-html-proxy',
+    name: "hugo-html-proxy",
     configureServer(server) {
       // Connect to Hugo's livereload WebSocket and relay reload events
       // through Vite's HMR channel. This way the browser only reloads
       // once Hugo has actually finished rebuilding.
       const connectToHugoLR = () => {
         const ws = new WebSocket(`ws://localhost:1313/livereload`);
-        ws.addEventListener('open', () => {
+        ws.addEventListener("open", () => {
           // Hugo's livereload protocol requires a hello handshake
-          ws.send(JSON.stringify({
-            command: 'hello',
-            protocols: ['http://livereload.com/protocols/official-7'],
-          }));
+          ws.send(
+            JSON.stringify({
+              command: "hello",
+              protocols: ["http://livereload.com/protocols/official-7"],
+            }),
+          );
         });
-        ws.addEventListener('message', (event) => {
+        ws.addEventListener("message", (event) => {
           try {
             const msg = JSON.parse(event.data);
-            if (msg.command === 'reload') {
-              server.ws.send({ type: 'full-reload' });
+            if (msg.command === "reload") {
+              server.ws.send({ type: "full-reload" });
             }
-          } catch { /* ignore non-JSON frames */ }
+          } catch {
+            /* ignore non-JSON frames */
+          }
         });
-        ws.addEventListener('close', () => setTimeout(connectToHugoLR, 1000));
-        ws.addEventListener('error', () => ws.close());
+        ws.addEventListener("close", () => setTimeout(connectToHugoLR, 1000));
+        ws.addEventListener("error", () => ws.close());
       };
       connectToHugoLR();
 
@@ -101,18 +103,23 @@ function hugoProxyPlugin() {
         const url = `${HUGO}${req.url}`;
 
         // HTML → fetch from Hugo, strip its livereload, let Vite inject HMR
-        if (req.headers.accept?.includes('text/html')) {
+        if (req.headers.accept?.includes("text/html")) {
           try {
             const r = await fetch(url);
             if (!r.ok) return next();
             let html = await r.text();
-            html = html.replace(/<script\s+src="\/livereload\.js[^"]*"[^>]*><\/script>/gi, '');
+            html = html.replace(
+              /<script\s+src="\/livereload\.js[^"]*"[^>]*><\/script>/gi,
+              "",
+            );
             html = await server.transformIndexHtml(req.url, html);
-            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.writeHead(200, { "Content-Type": "text/html" });
             return res.end(html);
           } catch {
-            res.writeHead(502, { 'Content-Type': 'text/html' });
-            return res.end('<h1>502 – Hugo not reachable</h1><p>Run <code>yarn hugo:dev</code> first.</p>');
+            res.writeHead(502, { "Content-Type": "text/html" });
+            return res.end(
+              "<h1>502 – Hugo not reachable</h1><p>Run <code>yarn hugo:dev</code> first.</p>",
+            );
           }
         }
 
@@ -120,12 +127,14 @@ function hugoProxyPlugin() {
         try {
           const r = await fetch(url);
           if (r.ok) {
-            const ct = r.headers.get('content-type');
-            if (ct) res.setHeader('Content-Type', ct);
+            const ct = r.headers.get("content-type");
+            if (ct) res.setHeader("Content-Type", ct);
             res.writeHead(200);
             return res.end(Buffer.from(await r.arrayBuffer()));
           }
-        } catch { /* Hugo not running */ }
+        } catch {
+          /* Hugo not running */
+        }
 
         next();
       });
@@ -143,26 +152,26 @@ function hugoBuildPlugin() {
   let baseUrl;
 
   return {
-    name: 'vite-plugin-hugo-build',
-    apply: 'build',
+    name: "vite-plugin-hugo-build",
+    apply: "build",
 
     config() {
       // Read the baseurl from Hugo config so we can absolutize URLs below
-      const configToml = fs.readFileSync(resolve('config.toml'), 'utf-8');
+      const configToml = fs.readFileSync(resolve("config.toml"), "utf-8");
       const match = configToml.match(/^baseurl\s*=\s*"([^"]+)"/im);
-      baseUrl = match?.[1]?.replace(/\/$/, '') || '';
+      baseUrl = match?.[1]?.replace(/\/$/, "") || "";
 
       // 1. Build Hugo site to a temp directory
       tmpDir = fs.realpathSync(
-        fs.mkdtempSync(path.join(os.tmpdir(), 'hugo-vite-')),
+        fs.mkdtempSync(path.join(os.tmpdir(), "hugo-vite-")),
       );
-      execFileSync('hugo', ['--minify', '--destination', tmpDir], {
+      execFileSync("hugo", ["--minify", "--destination", tmpDir], {
         cwd: projectRoot,
-        stdio: 'inherit',
+        stdio: "inherit",
       });
 
       // 2. Symlink source dirs so Vite can resolve imports from the HTML
-      for (const name of ['js', 'less', 'node_modules']) {
+      for (const name of ["js", "less", "node_modules"]) {
         const link = path.join(tmpDir, name);
         if (!fs.existsSync(link)) {
           fs.symlinkSync(path.join(projectRoot, name), link);
@@ -172,19 +181,19 @@ function hugoBuildPlugin() {
       // 3. Discover all HTML files as MPA entry points
       const htmlFiles = [];
       walkDir(tmpDir, (f) => {
-        if (f.endsWith('.html')) htmlFiles.push(path.relative(tmpDir, f));
+        if (f.endsWith(".html")) htmlFiles.push(path.relative(tmpDir, f));
       });
 
       const input = Object.fromEntries(
         htmlFiles.map((f) => [
-          f.replace(/\.html$/, '').replaceAll('/', '_') || 'index',
+          f.replace(/\.html$/, "").replaceAll("/", "_") || "index",
           path.join(tmpDir, f),
         ]),
       );
 
       // 4. Clean the output directory (outDir is outside root, so Vite
       //    won't empty it automatically)
-      const outDir = resolve('public');
+      const outDir = resolve("public");
       fs.rmSync(outDir, { recursive: true, force: true });
 
       return {
@@ -200,7 +209,7 @@ function hugoBuildPlugin() {
     // Make canonical and alternate link URLs absolute to prevent Vite from
     // trying to read directory-pointing URLs (e.g. href="/") as asset files.
     transformIndexHtml: {
-      order: 'pre',
+      order: "pre",
       handler(html) {
         return html.replace(/<link\s[^>]*>/gi, (tag) => {
           if (!/rel=(?:"|)(?:canonical|alternate)(?:"|)/i.test(tag)) return tag;
@@ -216,9 +225,9 @@ function hugoBuildPlugin() {
       // Copy non-HTML static assets (images, fonts, XML, etc.) from
       // Hugo's output to the final directory. HTML files are already
       // processed by Vite's build pipeline.
-      const outDir = resolve('public');
+      const outDir = resolve("public");
       walkDir(tmpDir, (f) => {
-        if (f.endsWith('.html')) return;
+        if (f.endsWith(".html")) return;
         const rel = path.relative(tmpDir, f);
         const dest = path.join(outDir, rel);
         fs.mkdirSync(path.dirname(dest), { recursive: true });
@@ -240,20 +249,20 @@ export default defineConfig({
   plugins: [mustachePlugin(), hugoProxyPlugin(), hugoBuildPlugin()],
 
   // Shim Node globals used by CJS deps (parse-link-header reads process.env)
-  define: { 'process.env': '{}' },
+  define: { "process.env": "{}" },
 
   resolve: {
     // LESS files use the webpack `~` prefix for bare imports
-    alias: [{ find: /^~/, replacement: '' }],
+    alias: [{ find: /^~/, replacement: "" }],
   },
 
   css: {
     preprocessorOptions: {
       less: {
-        math: 'always',
+        math: "always",
         modifyVars: {
-          'fa-font-path':  `"${resolve('node_modules/@fortawesome/fontawesome-free/webfonts')}"`,
-          'icon-font-path': `"${resolve('node_modules/bootstrap/fonts')}/"`,
+          "fa-font-path": `"${resolve("node_modules/@fortawesome/fontawesome-free/webfonts")}"`,
+          "icon-font-path": `"${resolve("node_modules/bootstrap/fonts")}/"`,
         },
       },
     },
@@ -263,21 +272,21 @@ export default defineConfig({
   // that need the custom plugin), but that hides all its CJS deps from Vite's
   // automatic dependency discovery — so we list them explicitly.
   optimizeDeps: {
-    exclude: ['eclipsefdn-solstice-assets'],
+    exclude: ["eclipsefdn-solstice-assets"],
     include: [
-      'jquery',
-      'bootstrap',
-      'cookieconsent',
-      'element-closest-polyfill',
-      'ellipsize',
-      'feather-icons',
-      'hogan.js',
-      'isomorphic-fetch',
-      'jquery-match-height',
-      'mustache',
-      'numeral',
-      'owl.carousel',
-      'parse-link-header',
+      "jquery",
+      "bootstrap",
+      "cookieconsent",
+      "element-closest-polyfill",
+      "ellipsize",
+      "feather-icons",
+      "hogan.js",
+      "isomorphic-fetch",
+      "jquery-match-height",
+      "mustache",
+      "numeral",
+      "owl.carousel",
+      "parse-link-header",
     ],
   },
 
@@ -288,6 +297,6 @@ export default defineConfig({
   // Used by `vite preview` to know where the build output lives.
   // During `vite build`, the hugoBuildPlugin overrides this with an absolute path.
   build: {
-    outDir: 'public',
+    outDir: "public",
   },
 });
