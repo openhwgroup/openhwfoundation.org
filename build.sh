@@ -1,5 +1,5 @@
 set -euo pipefail
 
 yarn install --frozen-lockfile;
-yarn run vite:build;
+yarn run build;
 hugo --minify;
