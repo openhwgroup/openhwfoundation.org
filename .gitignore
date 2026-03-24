@@ -3,5 +3,6 @@
 /static/fonts/vendor/
 /static/js/
 /static/css/
+/static/dist/
 /public/
 /.project

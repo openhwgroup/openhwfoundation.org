@@ -1,0 +1,33 @@
+{{ $entry := . }}
+
+{{ if hugo.IsServer }}
+  {{/* In dev mode, Vite dev server handles both JS and CSS modules */}}
+  <script type="module" src="/{{ $entry }}"></script>
+{{ else }}
+  {{ $manifestPath := "static/dist/.vite/manifest.json" }}
+
+  {{ if fileExists $manifestPath }}
+    {{ $manifest := transform.Unmarshal (readFile $manifestPath) }}
+    {{ $fileData := index $manifest $entry }}
+
+    {{ if $fileData }}
+      {{/* Output CSS chunks (from JS entry points that import CSS) */}}
+      {{ if $fileData.css }}
+        {{ range $fileData.css }}
+          <link rel="stylesheet" href="/dist/{{ . }}" />
+        {{ end }}
+      {{ end }}
+
+      {{/* Determine if the built file is CSS or JS and output the correct tag */}}
+      {{ if strings.HasSuffix $fileData.file ".css" }}
+        <link rel="stylesheet" href="/dist/{{ $fileData.file }}" />
+      {{ else }}
+        <script type="module" src="/dist/{{ $fileData.file }}"></script>
+      {{ end }}
+    {{ else }}
+      {{ warnf "Vite manifest missing entry: %s" $entry }}
+    {{ end }}
+  {{ else }}
+      {{ warnf "Vite manifest not found at %s" $manifestPath }}
+  {{ end }}
+{{ end }}
