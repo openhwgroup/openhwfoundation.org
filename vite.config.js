@@ -3,9 +3,7 @@ import { createRequire } from 'module';
 import path from 'path';
 
 const require = createRequire(import.meta.url);
-const resolve = (...segments) => path.resolve(__dirname, ...segments);
-const isProd = process.env.NODE_ENV === 'production' ||
-               process.argv.includes('build');
+const resolve = (...segments) => path.resolve(import.meta.dirname, ...segments);
 
 // ---------------------------------------------------------------------------
 // Plugins
@@ -98,12 +96,12 @@ function hugoProxyPlugin() {
 // Config
 // ---------------------------------------------------------------------------
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [mustachePlugin(), hugoProxyPlugin()],
 
   // In production, assets live under /dist/ (Hugo copies static/dist → public/dist).
   // In dev, the Vite dev server serves from root.
-  base: isProd ? '/dist/' : '/',
+  base: command === 'build' ? '/dist/' : '/',
 
   // Shim Node globals used by CJS deps (parse-link-header reads process.env)
   define: { 'process.env': '{}' },
@@ -153,7 +151,7 @@ export default defineConfig({
 
   build: {
     outDir: 'static/dist',
-    emptyOutDir: false,
+    emptyOutDir: true,
     manifest: true,
     rollupOptions: {
       input: {
@@ -162,4 +160,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

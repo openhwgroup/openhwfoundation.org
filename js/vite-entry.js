@@ -4,7 +4,6 @@
  * solstice-assets initialise, so we use top-level await + dynamic import
  * to guarantee execution order (static imports are hoisted).
  *
- * js/main.js is left untouched for the Laravel Mix pipeline.
  */
 
 // Patch addEventListener BEFORE loading any library code so that
