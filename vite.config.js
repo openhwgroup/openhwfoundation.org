@@ -4,6 +4,8 @@ import path from 'path';
 
 const require = createRequire(import.meta.url);
 const resolve = (...segments) => path.resolve(__dirname, ...segments);
+const isProd = process.env.NODE_ENV === 'production' ||
+               process.argv.includes('build');
 
 // ---------------------------------------------------------------------------
 // Plugins
@@ -98,6 +100,10 @@ function hugoProxyPlugin() {
 
 export default defineConfig({
   plugins: [mustachePlugin(), hugoProxyPlugin()],
+
+  // In production, assets live under /dist/ (Hugo copies static/dist → public/dist).
+  // In dev, the Vite dev server serves from root.
+  base: isProd ? '/dist/' : '/',
 
   // Shim Node globals used by CJS deps (parse-link-header reads process.env)
   define: { 'process.env': '{}' },
