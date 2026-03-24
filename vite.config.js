@@ -1,7 +1,25 @@
 import { defineConfig } from 'vite';
-import path from 'path';
+import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
-const resolve = (...segments) => path.resolve(import.meta.dirname, ...segments);
+const projectRoot = import.meta.dirname;
+const resolve = (...segments) => path.resolve(projectRoot, ...segments);
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Recursively walk a directory, skipping symlinks. */
+function walkDir(dir, callback) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isSymbolicLink()) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walkDir(full, callback);
+    else callback(full);
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Plugins
@@ -90,16 +108,111 @@ function hugoProxyPlugin() {
   };
 }
 
+/**
+ * Build-only plugin: runs Hugo, then feeds its HTML output to Vite as MPA
+ * entry points so the full Vite ecosystem (asset hashing, modulepreload,
+ * image optimisation plugins, etc.) applies to the final site.
+ */
+function hugoBuildPlugin() {
+  let tmpDir;
+  let baseUrl;
+
+  return {
+    name: 'vite-plugin-hugo-build',
+    apply: 'build',
+
+    config() {
+      // Read the baseurl from Hugo config so we can absolutize URLs below
+      const configToml = fs.readFileSync(resolve('config.toml'), 'utf-8');
+      const match = configToml.match(/^baseurl\s*=\s*"([^"]+)"/im);
+      baseUrl = match?.[1]?.replace(/\/$/, '') || '';
+
+      // 1. Build Hugo site to a temp directory
+      tmpDir = fs.realpathSync(
+        fs.mkdtempSync(path.join(os.tmpdir(), 'hugo-vite-')),
+      );
+      execFileSync('hugo', ['--minify', '--destination', tmpDir], {
+        cwd: projectRoot,
+        stdio: 'inherit',
+      });
+
+      // 2. Symlink source dirs so Vite can resolve imports from the HTML
+      for (const name of ['js', 'less', 'node_modules']) {
+        const link = path.join(tmpDir, name);
+        if (!fs.existsSync(link)) {
+          fs.symlinkSync(path.join(projectRoot, name), link);
+        }
+      }
+
+      // 3. Discover all HTML files as MPA entry points
+      const htmlFiles = [];
+      walkDir(tmpDir, (f) => {
+        if (f.endsWith('.html')) htmlFiles.push(path.relative(tmpDir, f));
+      });
+
+      const input = Object.fromEntries(
+        htmlFiles.map((f) => [
+          f.replace(/\.html$/, '').replaceAll('/', '_') || 'index',
+          path.join(tmpDir, f),
+        ]),
+      );
+
+      // 4. Clean the output directory (outDir is outside root, so Vite
+      //    won't empty it automatically)
+      const outDir = resolve('public');
+      fs.rmSync(outDir, { recursive: true, force: true });
+
+      return {
+        root: tmpDir,
+        build: {
+          outDir,
+          emptyOutDir: false,
+          rollupOptions: { input },
+        },
+      };
+    },
+
+    // Make canonical and alternate link URLs absolute to prevent Vite from
+    // trying to read directory-pointing URLs (e.g. href="/") as asset files.
+    transformIndexHtml: {
+      order: 'pre',
+      handler(html) {
+        return html.replace(/<link\s[^>]*>/gi, (tag) => {
+          if (!/rel=(?:"|)(?:canonical|alternate)(?:"|)/i.test(tag)) return tag;
+          return tag.replace(
+            /(href=(?:"|))(\/[^">\s]*)/,
+            (_, pre, url) => pre + baseUrl + url,
+          );
+        });
+      },
+    },
+
+    writeBundle() {
+      // Copy non-HTML static assets (images, fonts, XML, etc.) from
+      // Hugo's output to the final directory. HTML files are already
+      // processed by Vite's build pipeline.
+      const outDir = resolve('public');
+      walkDir(tmpDir, (f) => {
+        if (f.endsWith('.html')) return;
+        const rel = path.relative(tmpDir, f);
+        const dest = path.join(outDir, rel);
+        fs.mkdirSync(path.dirname(dest), { recursive: true });
+        fs.copyFileSync(f, dest);
+      });
+    },
+
+    closeBundle() {
+      if (tmpDir) fs.rmSync(tmpDir, { recursive: true, force: true });
+    },
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
 
-export default defineConfig(({ command }) => ({
-  plugins: [mustachePlugin(), hugoProxyPlugin()],
-
-  // In production, assets live under /dist/ (Hugo copies static/dist → public/dist).
-  // In dev, the Vite dev server serves from root.
-  base: command === 'build' ? '/dist/' : '/',
+export default defineConfig({
+  plugins: [mustachePlugin(), hugoProxyPlugin(), hugoBuildPlugin()],
 
   // Shim Node globals used by CJS deps (parse-link-header reads process.env)
   define: { 'process.env': '{}' },
@@ -144,18 +257,12 @@ export default defineConfig(({ command }) => ({
   },
 
   // Disable Vite's default public directory copying — Hugo's output lives in
-  // public/ and we don't want it duplicated into static/dist/ on build.
+  // public/ and we don't want it served as static files in dev.
   publicDir: false,
 
+  // Used by `vite preview` to know where the build output lives.
+  // During `vite build`, the hugoBuildPlugin overrides this with an absolute path.
   build: {
-    outDir: 'static/dist',
-    emptyOutDir: true,
-    manifest: true,
-    rollupOptions: {
-      input: {
-        main:   resolve('js/vite-entry.js'),
-        styles: resolve('less/styles.less'),
-      },
-    },
+    outDir: 'public',
   },
-}));
+});
