@@ -1,4 +1,5 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Connect, type Plugin, type ViteDevServer } from "vite";
+import type { ServerResponse } from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { parse as parseToml } from "smol-toml";
@@ -8,7 +9,7 @@ import { parse as parseToml } from "smol-toml";
 // ---------------------------------------------------------------------------
 
 /** Recursively walk a directory, skipping symlinks. */
-function walkDir(dir, callback) {
+function walkDir(dir: string, callback: (filePath: string) => void): void {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (entry.isSymbolicLink()) continue;
     const full = path.join(dir, entry.name);
@@ -21,10 +22,13 @@ function walkDir(dir, callback) {
  * Relay Hugo's livereload events through Vite's HMR WebSocket.
  * Auto-reconnects when Hugo restarts.
  */
-function relayHugoLivereload(hugoUrl, viteWs) {
+function relayHugoLivereload(
+  hugoUrl: string,
+  viteWs: ViteDevServer["ws"],
+): void {
   const wsUrl = hugoUrl.replace(/^http/, "ws") + "/livereload";
 
-  function connect() {
+  function connect(): void {
     const ws = new WebSocket(wsUrl);
     ws.addEventListener("open", () => {
       ws.send(
@@ -36,7 +40,7 @@ function relayHugoLivereload(hugoUrl, viteWs) {
     });
     ws.addEventListener("message", (event) => {
       try {
-        if (JSON.parse(event.data).command === "reload") {
+        if (JSON.parse(event.data as string).command === "reload") {
           viteWs.send({ type: "full-reload" });
         }
       } catch {}
@@ -52,7 +56,11 @@ function relayHugoLivereload(hugoUrl, viteWs) {
  * Symlink directories from the project root into Hugo's output
  * so Vite can resolve the imports referenced in Hugo's HTML.
  */
-function symlinkSources(sources, viteRoot, absHugoDir) {
+function symlinkSources(
+  sources: string[],
+  viteRoot: string,
+  absHugoDir: string,
+): void {
   for (const name of sources) {
     const link = path.join(absHugoDir, name);
     if (!fs.existsSync(link)) {
@@ -66,8 +74,10 @@ function symlinkSources(sources, viteRoot, absHugoDir) {
  * Returns a Rollup `input` object mapping entry names to absolute paths.
  * walkDir skips symlinks, so symlinked source dirs won't be scanned.
  */
-function discoverHtmlEntries(absHugoDir) {
-  const htmlFiles = [];
+function discoverHtmlEntries(
+  absHugoDir: string,
+): Record<string, string> {
+  const htmlFiles: string[] = [];
   walkDir(absHugoDir, (f) => {
     if (f.endsWith(".html")) htmlFiles.push(path.relative(absHugoDir, f));
   });
@@ -85,7 +95,10 @@ function discoverHtmlEntries(absHugoDir) {
  * Needed because the plugin changes root to Hugo's output dir,
  * which would break Vite's relative resolution of publicDir.
  */
-function resolvePublicDir(userPublicDir, viteRoot) {
+function resolvePublicDir(
+  userPublicDir: string | false | undefined,
+  viteRoot: string,
+): string | false {
   if (userPublicDir === false) return false;
   return path.resolve(viteRoot, userPublicDir || "public");
 }
@@ -95,7 +108,7 @@ function resolvePublicDir(userPublicDir, viteRoot) {
  * Vite will overwrite the HTML with processed versions.
  * Symlinked source dirs are skipped — they're not part of the output.
  */
-function syncHugoOutput(absHugoDir, absOutDir) {
+function syncHugoOutput(absHugoDir: string, absOutDir: string): void {
   fs.rmSync(absOutDir, { recursive: true, force: true });
   fs.mkdirSync(absOutDir, { recursive: true });
   for (const entry of fs.readdirSync(absHugoDir, { withFileTypes: true })) {
@@ -112,12 +125,12 @@ function syncHugoOutput(absHugoDir, absOutDir) {
  * Absolutize canonical/alternate <link> hrefs so Vite doesn't try
  * to resolve them as local file paths (which would fail).
  */
-function absolutizeLinkHrefs(html, baseUrl) {
+function absolutizeLinkHrefs(html: string, baseUrl: string): string {
   return html.replaceAll(/<link\s[^>]*>/gi, (tag) => {
     if (!/rel=(?:"|)(?:canonical|alternate)(?:"|)/i.test(tag)) return tag;
     return tag.replace(
       /(href=(?:"|))(\/[^">\s]*)/,
-      (_, pre, url) => pre + baseUrl + url,
+      (_, pre: string, url: string) => pre + baseUrl + url,
     );
   });
 }
@@ -128,7 +141,12 @@ function absolutizeLinkHrefs(html, baseUrl) {
  * through Vite's transform pipeline for HMR injection.
  * Non-HTML responses are forwarded as-is.
  */
-async function proxyToHugo(req, res, next, { hugoUrl, server }) {
+async function proxyToHugo(
+  req: Connect.IncomingMessage,
+  res: ServerResponse,
+  next: Connect.NextFunction,
+  { hugoUrl, server }: { hugoUrl: string; server: ViteDevServer },
+): Promise<void> {
   const isHTML = req.headers.accept?.includes("text/html");
 
   try {
@@ -138,23 +156,25 @@ async function proxyToHugo(req, res, next, { hugoUrl, server }) {
     if (isHTML) {
       let html = await r.text();
       // Strip Hugo's livereload script — Vite handles reloading now
-      html = html.replace(
+      html = html.replaceAll(
         /<script\s+src="\/livereload\.js[^"]*"[^>]*><\/script>/gi,
         "",
       );
-      html = await server.transformIndexHtml(req.url, html);
+      html = await server.transformIndexHtml(req.url ?? "/", html);
       res.writeHead(200, { "Content-Type": "text/html" });
-      return res.end(html);
+      res.end(html);
+      return;
     }
 
     const ct = r.headers.get("content-type");
     if (ct) res.setHeader("Content-Type", ct);
     res.writeHead(200);
-    return res.end(Buffer.from(await r.arrayBuffer()));
+    res.end(Buffer.from(await r.arrayBuffer()));
   } catch {
     if (isHTML) {
       res.writeHead(502, { "Content-Type": "text/html" });
-      return res.end("<h1>502 – Hugo not reachable</h1>");
+      res.end("<h1>502 – Hugo not reachable</h1>");
+      return;
     }
     next();
   }
@@ -164,16 +184,17 @@ async function proxyToHugo(req, res, next, { hugoUrl, server }) {
 // Plugins
 // ---------------------------------------------------------------------------
 
+interface MustachePluginOptions {
+  importPath?: string;
+}
+
 /**
  * Vite plugin that transforms .mustache files into ES modules.
  *
  * .partial.mustache → raw string export
  * .mustache         → callable function via Hogan.js
- *
- * @param {{ importPath?: string }} options
- *   importPath – the Hogan.js import specifier (default: 'hogan.js')
  */
-function mustachePlugin({ importPath = "hogan.js" } = {}) {
+function mustachePlugin({ importPath = "hogan.js" }: MustachePluginOptions = {}): Plugin {
   return {
     name: "vite-plugin-mustache",
     transform(src, id) {
@@ -195,6 +216,13 @@ function mustachePlugin({ importPath = "hogan.js" } = {}) {
   };
 }
 
+interface HugoPluginOptions {
+  hugoOutDir?: string;
+  hugoUrl?: string;
+  sources?: string[];
+  baseUrl?: string;
+}
+
 /**
  * Hugo + Vite integration plugin.
  *
@@ -205,21 +233,16 @@ function mustachePlugin({ importPath = "hogan.js" } = {}) {
  * Build: Expects Hugo to have already built into `hugoOutDir` (e.g. .hugo/).
  *        Vite reads the HTML from there, bundles JS/CSS imports, and writes
  *        the final result to its own `build.outDir` (e.g. public/).
- *
- * @param {{
- *   hugoOutDir?: string,
- *   hugoUrl?: string,
- *   sources?: string[],
- *   baseUrl?: string,
- * }} options
  */
 function hugo({
   hugoOutDir = ".hugo",
   hugoUrl = "http://localhost:1313",
   sources = ["node_modules"],
   baseUrl = "",
-} = {}) {
-  let viteRoot, absHugoDir, absOutDir;
+}: HugoPluginOptions = {}): Plugin[] {
+  let viteRoot: string;
+  let absHugoDir: string;
+  let absOutDir: string;
 
   // Requests matching these prefixes stay in Vite (not proxied to Hugo)
   const viteOwned = ["/@", ...sources.map((d) => `/${d}/`)];
@@ -234,7 +257,7 @@ function hugo({
         relayHugoLivereload(hugoUrl, server.ws);
 
         server.middlewares.use(async (req, res, next) => {
-          if (viteOwned.some((p) => req.url.startsWith(p))) return next();
+          if (viteOwned.some((p) => req.url!.startsWith(p))) return next();
           return proxyToHugo(req, res, next, { hugoUrl, server });
         });
       },
@@ -291,16 +314,18 @@ function hugo({
 // Project config
 // ---------------------------------------------------------------------------
 
-const rel = (...segments) => path.resolve(import.meta.dirname, ...segments);
+const rel = (...segments: string[]) =>
+  path.resolve(import.meta.dirname, ...segments);
 
 const hugoConfig = parseToml(fs.readFileSync(rel("config.toml"), "utf-8"));
-const baseUrl = hugoConfig.baseurl?.replace(/\/$/, "") || "";
+const baseUrl =
+  (hugoConfig.baseurl as string | undefined)?.replace(/\/$/, "") || "";
 
 export default defineConfig({
   plugins: [
     mustachePlugin(),
     hugo({
-      hugoOutDir: rel(".hugo"), 
+      hugoOutDir: rel(".hugo"),
       baseUrl,
       // Dirs containing source files that Hugo's HTML references via
       // <script>/<link> tags. They are symlinked into Hugo's output so
