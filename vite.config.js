@@ -264,6 +264,10 @@ export default defineConfig({
     mustachePlugin(),
     hugo({
       baseUrl,
+      // Dirs containing source files that Hugo's HTML references via
+      // <script>/<link> tags. They are symlinked into Hugo's output so
+      // Vite can resolve and bundle them, and excluded from the Hugo
+      // proxy during dev so Vite serves them with transforms instead.
       sources: ["js", "less", "node_modules"],
     }),
   ],
