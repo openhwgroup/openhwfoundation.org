@@ -7,6 +7,9 @@ metaDataFormat = "yaml"
 disableKinds = ["taxonomyTerm", "taxonomy"]
 themesDir = "node_modules/"
 
+# Vite handles static files via publicDir — prevent Hugo from copying them.
+staticDir = []
+
 [Params]
   website_type = "Working Group"
   google_tag_manager = "GTM-5WLCZXC"

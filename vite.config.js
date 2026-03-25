@@ -272,6 +272,9 @@ export default defineConfig({
     }),
   ],
 
+  // Hugo static folder has been disabled in favor of Vite's publicDir
+  publicDir: "static",
+
   define: { "process.env": "{}" },
 
   resolve: {
@@ -309,6 +312,5 @@ export default defineConfig({
     ],
   },
 
-  publicDir: "static",
   build: { outDir: "public" },
 });
