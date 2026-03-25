@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import fs from "node:fs";
 import path from "node:path";
+import { parse as parseToml } from "smol-toml";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -255,9 +256,8 @@ function hugo({
 
 const rel = (...segments) => path.resolve(import.meta.dirname, ...segments);
 
-const configToml = fs.readFileSync(rel("config.toml"), "utf-8");
-const baseUrlMatch = configToml.match(/^baseurl\s*=\s*"([^"]+)"/im);
-const baseUrl = baseUrlMatch?.[1]?.replace(/\/$/, "") || "";
+const hugoConfig = parseToml(fs.readFileSync(rel("config.toml"), "utf-8"));
+const baseUrl = hugoConfig.baseurl?.replace(/\/$/, "") || "";
 
 export default defineConfig({
   plugins: [

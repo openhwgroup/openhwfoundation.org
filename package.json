@@ -25,6 +25,7 @@
   "devDependencies": {
     "concurrently": "^9.2.1",
     "less": "^4.6.4",
+    "smol-toml": "^1.6.1",
     "vite": "^8.0.2"
   }
 }
