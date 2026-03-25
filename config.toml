@@ -7,6 +7,9 @@ metaDataFormat = "yaml"
 disableKinds = ["taxonomyTerm", "taxonomy"]
 themesDir = "node_modules/"
 
+# Vite handles static files via publicDir — prevent Hugo from copying them.
+staticDir = []
+
 [Params]
   website_type = "Working Group"
   google_tag_manager = "GTM-5WLCZXC"
@@ -17,14 +20,14 @@ themesDir = "node_modules/"
   keywords = ["open-source", "risc-v", "hardware", "software", "hw", "sw", "eclipse ide"]
   logo = "/images/openhw-landscape.png"
   logo_width = "200"
-  styles = "css/styles.css"
+  styles = "less/styles.less"
+  js = "js/main.ts"
   favicon = "images/favicon.ico"
 # share_img = ""
   gcse = ""
 # subtheme = ""
   header_wrapper_class = "header-default-bg-img"
   hide_call_for_action = true
-  js = "js/solstice.js"
   featured_content_publish_target = "openhwgroup"
   call_for_action_text = "Download"
   call_for_action_url = "#"
