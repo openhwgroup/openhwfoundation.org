@@ -56,15 +56,12 @@ function mustachePlugin({ importPath = "hogan.js" } = {}) {
  * and build (run Hugo, then let Vite process HTML in-place).
  *
  * @param {{
- *   root?: string,
  *   outDir?: string,
  *   hugoUrl?: string,
- *   hugoArgs?: string[],
  *   sources?: string[],
  *   baseUrl?: string,
  * }} options
- *   root        – project root (default: process.cwd())
- *   outDir      – Hugo's output directory, relative to root (default: 'public').
+ *   outDir      – Hugo's output directory, relative to Vite root (default: 'public').
  *                 Hugo must have already built into this directory before `vite build`.
  *   hugoUrl     – Hugo dev server origin (default: 'http://localhost:1313')
  *   sources     – dirs to symlink into outDir so Vite can resolve imports
@@ -72,13 +69,13 @@ function mustachePlugin({ importPath = "hogan.js" } = {}) {
  *   baseUrl     – prepended to canonical/alternate href to prevent Vite asset errors
  */
 function hugo({
-  root = process.cwd(),
   outDir = "public",
   hugoUrl = "http://localhost:1313",
   sources = ["node_modules"],
   baseUrl = "",
 } = {}) {
-  const absOutDir = path.resolve(root, outDir);
+  let viteRoot;
+  let absOutDir;
   const wsUrl = hugoUrl.replace(/^http/, "ws") + "/livereload";
 
   // URL prefixes Vite must handle itself during dev:
@@ -155,12 +152,15 @@ function hugo({
       },
     },
 
-    // --- Build: run Hugo then process HTML ---
+    // --- Build: process Hugo output ---
     {
       name: "vite-plugin-hugo-build",
       apply: "build",
 
-      config() {
+      config(userConfig) {
+        viteRoot = userConfig.root || process.cwd();
+        absOutDir = path.resolve(viteRoot, outDir);
+
         if (!fs.existsSync(absOutDir)) {
           throw new Error(
             `Hugo output directory "${absOutDir}" not found. ` +
@@ -171,7 +171,7 @@ function hugo({
         for (const name of sources) {
           const link = path.join(absOutDir, name);
           if (!fs.existsSync(link)) {
-            fs.symlinkSync(path.join(root, name), link);
+            fs.symlinkSync(path.join(viteRoot, name), link);
           }
         }
 
@@ -229,8 +229,7 @@ function hugo({
 // Project config
 // ---------------------------------------------------------------------------
 
-const root = import.meta.dirname;
-const rel = (...segments) => path.resolve(root, ...segments);
+const rel = (...segments) => path.resolve(import.meta.dirname, ...segments);
 
 const configToml = fs.readFileSync(rel("config.toml"), "utf-8");
 const baseUrlMatch = configToml.match(/^baseurl\s*=\s*"([^"]+)"/im);
@@ -240,7 +239,6 @@ export default defineConfig({
   plugins: [
     mustachePlugin(),
     hugo({
-      root,
       baseUrl,
       sources: ["js", "less", "node_modules"],
     }),
