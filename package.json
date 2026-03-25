@@ -13,7 +13,7 @@
   },
   "scripts": {
     "dev": "concurrently \"hugo server --port 1313\" \"vite --open\"",
-    "build": "hugo --minify && vite build",
+    "build": "hugo --minify -d .hugo && vite build",
     "preview": "vite preview"
   },
   "readmeFilename": "README.md",
