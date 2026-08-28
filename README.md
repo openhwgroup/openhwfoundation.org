@@ -1,5 +1,14 @@
 # openhwfoundation.org
 
+---
+**NOTE**
+
+This Hugo codebase was migrated to [Eclipse GitLab](https://gitlab.eclipse.org/eclipsefdn/software-dev/websites/openhwfoundation-org) on August 28, 2026, and archived after the website was migrated to WordPress.
+
+You can [report issues with the website](https://gitlab.eclipse.org/eclipsefdn/software-dev/websites/openhwfoundation-org/-/work_items) in the Eclipse GitLab repository.
+
+---
+
 The [openhwfoundation.org](https://openhwfoundation.org) website is generated with [Hugo](https://gohugo.io/documentation/).
 
 OpenHW Group is a not-for-profit, global organization driven by its members and individual contributors where hardware and software designers collaborate in the development of open-source cores, related IP, tools and software. OpenHW provides an infrastructure for hosting high quality open-source HW developments in line with industry best practices.
