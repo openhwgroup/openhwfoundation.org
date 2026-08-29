@@ -1,0 +1,9 @@
+yearly_sections_enabled: true
+dir: "/resources/meeting-minutes/documents/"
+order:
+  - "steering_committee"
+items:
+  steering_committee:
+  - title: "27 January 2026 (pdf)"
+    url: "steering-committee/openhw-foundation-minutes-2026-01-27.pdf"
+    year: 2026
